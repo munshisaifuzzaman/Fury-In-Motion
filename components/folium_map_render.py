@@ -1,14 +1,14 @@
 import folium
 import streamlit as st
-from streamlit_folium import folium_static
 
+from components.map_utils import create_ef_layers
 from utils.constants import MAP_STYLES, COLUMN_MAPPING, EF_COLORS, TORNADO_START_ICON, TORNADO_END_ICON
-from utils.weather import load_cached_weather, fetch_weather
 from utils.coordinates import validate_coordinates, get_intermediate_points
 from utils.geojson import add_state_borders, add_ef_legend
-from components.map_utils import create_ef_layers
+from utils.weather import load_cached_weather, fetch_weather
 
-def render_map(data, column, top_n, value_range, map_style):
+
+def folium_render_map(data, column, top_n, value_range, map_style):
     col_key, _ = COLUMN_MAPPING[column]
     min_val, max_val = value_range
 
@@ -25,6 +25,7 @@ def render_map(data, column, top_n, value_range, map_style):
 
     ef_layers = create_ef_layers()
     cache = load_cached_weather()
+
 
     for _, row in filtered.iterrows():
         start = validate_coordinates(row["slat"], row["slon"])
@@ -72,7 +73,7 @@ def render_map(data, column, top_n, value_range, map_style):
     for layer in ef_layers.values():
         layer.add_to(folium_map)
 
-    folium.LayerControl(collapsed=False).add_to(folium_map)
+    folium.LayerControl(collapsed=True).add_to(folium_map)
     add_ef_legend(folium_map)
     # Responsive layout
     col1, col2, col3 = st.columns([0.05, 0.9, 0.05])  # side padding

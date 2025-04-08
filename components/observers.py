@@ -1,5 +1,5 @@
 import streamlit as st
-from components.map_render import update_map
+from components.folium_map_render import update_map
 from utils.constants import COLUMN_MAPPING
 import components.controls as controls
 
