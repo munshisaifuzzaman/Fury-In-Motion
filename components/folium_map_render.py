@@ -2,7 +2,7 @@ import folium
 import streamlit as st
 
 from components.map_utils import create_ef_layers
-from utils.constants import MAP_STYLES, COLUMN_MAPPING, EF_COLORS, TORNADO_START_ICON, TORNADO_END_ICON
+from utils.constants import MAP_STYLES, COLUMN_MAPPING, EF_COLORS, TORNADO_START_ICON, TORNADO_END_ICON, THERMOMETER
 from utils.coordinates import validate_coordinates, get_intermediate_points
 from utils.geojson import add_state_borders, add_ef_legend
 from utils.weather import load_cached_weather, fetch_weather
@@ -69,6 +69,14 @@ def folium_render_map(data, column, top_n, value_range, map_style):
             weight=2 + row["mag"] * 2,
             tooltip=f"EF{int(row['mag'])}, Length: {row['len']} miles"
         ).add_to(ef_layer)
+
+    # add weather station icons
+    # thermometer (weather stations)
+    folium.Marker(
+        location=(30, -90),
+        icon=folium.CustomIcon(THERMOMETER, icon_size=(40,40)),
+        popup="test"
+    ).add_to(ef_layer)
 
     for layer in ef_layers.values():
         layer.add_to(folium_map)
