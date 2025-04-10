@@ -1,9 +1,10 @@
 import streamlit as st
 from components.controls import render_sidebar_controls
 from components.folium_map_render import folium_render_map
-from utils.data_loader import load_tornado_data
+from utils.data_loader import load_tornado_data, load_station_data
 
 df = load_tornado_data()
+wsd = load_station_data()
 
 # Handle query param (replaces experimental_get_query_params)
 params = st.query_params
@@ -113,6 +114,6 @@ def render_top_N_page():
     metric, top_n, map_style, value_range = render_sidebar_controls(df)
 
     if metric != "Select" and top_n != "Select":
-        folium_render_map(df, metric, int(top_n), value_range, map_style)
+        folium_render_map(df, wsd, metric, int(top_n), value_range, map_style)
     else:
         st.info("Select both metric and top N to begin.")

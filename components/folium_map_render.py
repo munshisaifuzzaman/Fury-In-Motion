@@ -8,7 +8,7 @@ from utils.geojson import add_state_borders, add_ef_legend
 from utils.weather import load_cached_weather, fetch_weather
 
 
-def folium_render_map(data, column, top_n, value_range, map_style):
+def folium_render_map(data, wsd, column, top_n, value_range, map_style):
     col_key, _ = COLUMN_MAPPING[column]
     min_val, max_val = value_range
 
