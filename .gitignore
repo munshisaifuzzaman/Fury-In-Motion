@@ -1,1 +1,12 @@
 components/__pycache__/
+.venv/
+
+# Ignore JetBrains IDE metadata
+.idea/
+*.iml
+
+# Ignore SQL and Database tool extensions (Scratches & Consoles)
+.idea/**/data/
+.idea/**/schema/
+.idea/**/schema.layouts/
+.idea/scratches/
