@@ -73,7 +73,7 @@ def folium_render_map(data, wsd, column, top_n, value_range, map_style):
     # add weather station icons
     # thermometer (weather stations)
     folium.Marker(
-        location=(30, -90),
+        location=(wsd["LATITUDE"][1], wsd["LONGITUDE"][1]),
         icon=folium.CustomIcon(THERMOMETER, icon_size=(40,40)),
         popup="test"
     ).add_to(ef_layer)
