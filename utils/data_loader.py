@@ -18,6 +18,7 @@ def load_tornado_data():
     return df[['date', 'yr', 'slat', 'slon', 'elat', 'elon', 'len', 'mag', 'wid', 'fat', 'inj']]
 
 
+# some of this data is getting processed as NaN, this could be an issue. idk
 @st.cache_data
 def load_station_data():
     stations = list()
