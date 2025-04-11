@@ -1,9 +1,10 @@
 import streamlit as st
 from components.controls import render_sidebar_controls
 from components.folium_map_render import folium_render_map
-from utils.data_loader import load_tornado_data
+from utils.data_loader import load_tornado_data, load_station_data
 
 df = load_tornado_data()
+wsd = load_station_data()
 
 # Handle query param (replaces experimental_get_query_params)
 params = st.query_params

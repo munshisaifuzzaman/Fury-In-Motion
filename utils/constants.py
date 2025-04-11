@@ -27,6 +27,8 @@ EF_COLORS = {
 TORNADO_START_ICON = "./assets/tornado_start.png"
 TORNADO_END_ICON = "./assets/tornado_end.png"
 
+THERMOMETER_ICON = "./assets/thermometer.png"
+
 COLUMN_MAPPING = {
     "Length": ("len", "Tornado Length"),
     "Fatalities": ("fat", "Fatalities"),

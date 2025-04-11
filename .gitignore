@@ -1,4 +1,5 @@
 components/__pycache__/
+utils/__pycache__/
 .venv/
 
 # Ignore JetBrains IDE metadata
