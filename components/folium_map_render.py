@@ -5,17 +5,24 @@ from components.map_utils import create_ef_layers
 from utils.constants import MAP_STYLES, COLUMN_MAPPING, EF_COLORS, TORNADO_START_ICON, TORNADO_END_ICON
 from utils.coordinates import validate_coordinates, get_intermediate_points
 from utils.geojson import add_state_borders, add_ef_legend
+from utils.folium_utils import get_state_from_latlon, build_tornado_dropdown
 from utils.weather import load_cached_weather, fetch_weather, prepare_weather_data
 from folium.plugins import MarkerCluster
 
 
 def folium_render_map(data, column, top_n, value_range, map_style):
-    # global points
     col_key, _ = COLUMN_MAPPING[column]
     min_val, max_val = value_range
 
     filtered = data[(data[col_key] >= min_val) & (data[col_key] <= max_val)]
     filtered = filtered.sort_values(col_key, ascending=False).head(top_n)
+    tornado_options, filtered = build_tornado_dropdown(filtered)
+
+    selected_tornado_idx = st.sidebar.selectbox(
+        "🔍 Highlight a Tornado",
+        options=list(tornado_options.keys()),
+        format_func=lambda k: tornado_options[k]
+    )
 
     # Only show paths and weather markers for small numbers of tornadoes
     SHOW_PATHS = st.sidebar.checkbox("Show Tornado Paths", value=(top_n <= 10))
@@ -33,7 +40,7 @@ def folium_render_map(data, column, top_n, value_range, map_style):
     marker_cluster = MarkerCluster(name="Tornado Markers")
 
 
-    for _, row in filtered.iterrows():
+    for row_idx, row in filtered.iterrows():
         start = validate_coordinates(row["slat"], row["slon"])
         end = validate_coordinates(row["elat"], row["elon"])
         if not start or not end:
@@ -43,6 +50,17 @@ def folium_render_map(data, column, top_n, value_range, map_style):
         ef_layer = ef_layers.get(f"EF{int(row['mag'])}", folium.FeatureGroup())
 
         points, weather_data = prepare_weather_data(row, cache, include_path=SHOW_PATHS)
+        is_selected = (row_idx == selected_tornado_idx)
+
+        if is_selected:
+            folium.CircleMarker(
+                location=start,
+                radius=18,
+                color="blue",
+                fill=False,
+                weight=3,
+                opacity=0.8
+            ).add_to(ef_layer)
 
         # Start Marker (with full weather popup)
         folium.Marker(
@@ -64,9 +82,7 @@ def folium_render_map(data, column, top_n, value_range, map_style):
                 max_width=300)
         ).add_to(marker_cluster)
 
-        # Mid Weather Points
-        # If allowed, add path and weather markers
-        # If paths are enabled, show intermediate weather & path
+        # Add path and weather markers if enabled
         if SHOW_PATHS:
             for idx, (lat, lon) in enumerate(points[1:-1]):
                 folium.CircleMarker(
@@ -89,22 +105,6 @@ def folium_render_map(data, column, top_n, value_range, map_style):
                     f"<b>EF Rating:</b> EF{int(row['mag'])}<br><b>Fatalities:</b> {row['fat']}<br><b>Injuries:</b> {row['inj']}",
                     sticky=True)
             ).add_to(ef_layer)
-        # for idx, (lat, lon) in enumerate(points[1:-1]):
-        #     folium.CircleMarker(
-        #         location=(lat, lon),
-        #         radius=4,
-        #         color=color,
-        #         fill=True,
-        #         fill_color=color,
-        #         popup=f"Weather: {weather_data[idx+1]}"
-        #     ).add_to(ef_layer)
-        #
-        # folium.PolyLine(
-        #     locations=[start, end],
-        #     color=color,
-        #     weight=2 + row["mag"] * 2,
-        #     tooltip=f"EF{int(row['mag'])}, Length: {row['len']} miles"
-        # ).add_to(ef_layer)
 
     # Add markers and layers to map
     marker_cluster.add_to(folium_map)
