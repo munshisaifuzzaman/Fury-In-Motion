@@ -4,6 +4,8 @@ import json
 import pandas as pd
 import requests
 from utils.constants import WEATHER_CACHE_FILE
+from utils.coordinates import get_intermediate_points
+
 
 def load_cached_weather():
     if os.path.exists(WEATHER_CACHE_FILE):
@@ -45,3 +47,14 @@ def fetch_weather(lat, lon, date, cache):
     cache.setdefault(date_str, {})[key] = result
     save_cached_weather(cache)
     return result
+
+def prepare_weather_data(row, cache, include_path=True):
+    if include_path:
+        points = [(row["slat"], row["slon"])] + get_intermediate_points(
+            row["slat"], row["slon"], row["elat"], row["elon"], steps=4
+        ) + [(row["elat"], row["elon"])]
+    else:
+        points = [(row["slat"], row["slon"]), (row["elat"], row["elon"])]
+
+    weather_data = [fetch_weather(lat, lon, row["date"], cache) for lat, lon in points]
+    return points, weather_data
