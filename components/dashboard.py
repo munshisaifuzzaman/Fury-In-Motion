@@ -1,7 +1,11 @@
 import streamlit as st
 from components.controls import render_sidebar_controls
 from components.folium_map_render import folium_render_map
+from components.folium_radar_map import render_geographic_radar_map
+from utils.constants import COLUMN_MAPPING
 from utils.data_loader import load_tornado_data, load_station_data
+from components.radar_comparison import render_radar_chart
+import pandas as pd
 
 df = load_tornado_data()
 wsd = load_station_data()
@@ -89,31 +93,58 @@ def render_task_grid():
             </a>
             """, unsafe_allow_html=True)
 
-# def render_top_N_page():
-#     metric, top_n, map_style, value_range = render_sidebar_controls(df)
-#
-#     if metric != "Select" and top_n != "Select":
-#         render_map(df, metric, int(top_n), value_range, map_style)
-#     else:
-#         st.info("Select both metric and top N to begin.")
 
 def render_top_N_page():
-    # Top row for the back button
     cols = st.columns([0.05, 0.95])
     with cols[0]:
         if st.button("⬅️", key="back_btn", help="Go back to dashboard"):
             if "view" in st.session_state:
-                del st.session_state["view"]  # Clear view
-            st.query_params.clear()  # Clear query param
-            st.rerun()  # Refresh to go back to dashboard
+                del st.session_state["view"]
+            st.query_params.clear()
+            st.rerun()
 
-    # Optional: add spacing below the back button
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # Main View Content
+    # Sidebar UI for filtering
     metric, top_n, map_style, value_range = render_sidebar_controls(df)
 
     if metric != "Select" and top_n != "Select":
+
         folium_render_map(df, metric, int(top_n), value_range, map_style)
+
+        # ✅ Filtered data for current selection
+        col_key, _ = COLUMN_MAPPING[metric]
+        min_val, max_val = value_range
+        filtered = df[(df[col_key] >= min_val) & (df[col_key] <= max_val)]
+        filtered = filtered.sort_values(col_key, ascending=False).head(int(top_n))
+
+        # ✅ Add state column before dropdown
+        from utils.folium_utils import get_state_from_latlon
+        filtered = filtered.copy()
+        filtered["state"] = filtered.apply(lambda row: get_state_from_latlon(row["slat"], row["slon"]), axis=1)
+
+        # 🔁 Run radar comparison UI + chart logic here
+        render_radar_chart(filtered)
+
+        # 🗺️ Geographic Radar Comparison Section
+        st.markdown("### 🗺️ Geographic Tornado Radar Map")
+        st.markdown("---")
+
+        st.markdown("#### 🌐 Select tornadoes for geographic comparison:")
+
+        selected_geo = st.multiselect(
+            "Choose tornadoes to show on the map",
+            options=list(filtered.index),
+            format_func=lambda
+                i: f"{filtered.loc[i]['state']} | {filtered.loc[i]['date']} | EF{int(filtered.loc[i]['mag'])}"
+        )
+
+        selected_geo_df = filtered.loc[selected_geo] if selected_geo else pd.DataFrame()
+
+        if len(selected_geo_df) >= 2:
+            render_geographic_radar_map(selected_geo_df)
+        else:
+            st.info("📌 Select two or more tornadoes to view them on the comparison map.")
+
     else:
         st.info("Select both metric and top N to begin.")

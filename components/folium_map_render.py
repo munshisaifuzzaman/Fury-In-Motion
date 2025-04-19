@@ -11,6 +11,9 @@ from folium.plugins import MarkerCluster
 
 
 def folium_render_map(data, column, top_n, value_range, map_style):
+    st.markdown(f"### 🌪️ Top {top_n} Tornado Visualization based on {column}")
+    st.markdown("---")  # Horizontal line separator
+
     col_key, _ = COLUMN_MAPPING[column]
     min_val, max_val = value_range
 
@@ -20,8 +23,9 @@ def folium_render_map(data, column, top_n, value_range, map_style):
 
     selected_tornado_idx = st.sidebar.selectbox(
         "🔍 Highlight a Tornado",
-        options=list(tornado_options.keys()),
-        format_func=lambda k: tornado_options[k]
+        options=[None] + list(tornado_options.keys()),
+        format_func=lambda k: "State | Year | Mag | Len" if k is None else tornado_options[k],
+        index=0
     )
 
     # Only show paths and weather markers for small numbers of tornadoes
@@ -50,7 +54,7 @@ def folium_render_map(data, column, top_n, value_range, map_style):
         ef_layer = ef_layers.get(f"EF{int(row['mag'])}", folium.FeatureGroup())
 
         points, weather_data = prepare_weather_data(row, cache, include_path=SHOW_PATHS)
-        is_selected = (row_idx == selected_tornado_idx)
+        is_selected = (selected_tornado_idx is not None and row_idx == selected_tornado_idx)
 
         if is_selected:
             folium.CircleMarker(
