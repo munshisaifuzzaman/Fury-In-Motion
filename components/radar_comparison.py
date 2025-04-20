@@ -4,9 +4,38 @@ import streamlit as st
 import plotly.graph_objects as go
 from utils.folium_utils import get_state_from_latlon
 
+def spyder_radar_initial_text():
+    with st.expander("🧠 Why Use a Spider Radar Chart? What Insights Does It Reveal?", expanded=False):
+        st.markdown("""
+        This radar chart provides a **multi-dimensional comparison** of selected tornadoes based on five critical attributes:
+        - **EF Rating**
+        - **Length (mi)**
+        - **Width (yd)**
+        - **Fatalities**
+        - **Injuries**
+
+        #### ✅ Why We Visualized This:
+        - To help users identify **patterns across multiple severity metrics** in a single glance.
+        - To compare tornadoes that may have similar EF ratings but vastly different outcomes in terms of **damage or human impact**.
+        - To expose **trade-offs or outliers**, such as tornadoes with high fatalities but lower wind ratings.
+
+        #### 🔍 What This Visualization Reveals:
+        - Some **longer and wider tornadoes** did not result in high casualties.
+        - Certain tornadoes with **lower EF ratings** still caused many injuries — suggesting **contextual factors** like time of day or location matter.
+        - Users can **visually correlate** EF rating with actual destruction using spider-shaped area comparisons.
+
+        #### 🔬 How It Leads to Deeper Questions:
+        - Why do some EF2 tornadoes cause more harm than EF4 ones?
+        - Are tornado width or length **better indicators** of impact than EF rating alone?
+        - Can we visually detect **clusters of destructive patterns** by comparing shapes?
+
+        This chart is an entry point to **deeper scientific analysis**, especially when paired with weather data like CAPE or wind gusts.
+        """)
+
 def render_radar_chart(filtered_df):
     st.markdown("### 🌪️ Tornado Radar Comparison")
-    st.markdown("---")  # Horizontal line separator
+    spyder_radar_initial_text()
+
 
     df = filtered_df.copy()
     df["name"] = df.apply(lambda row: get_state_from_latlon(row["slat"], row["slon"]), axis=1)
