@@ -115,7 +115,7 @@ def render_scientific_explorer(st, filtered):
         render_wind_vs_fatalities(filtered, PREFETCH_457_DF)
 
     elif question == "Temperature vs Tornado Length":
-        render_temp_vs_length(filtered)
+        render_temp_vs_length(filtered, PREFETCH_457_DF)
 
     elif question == "Precipitation vs Tornado Width":
 
