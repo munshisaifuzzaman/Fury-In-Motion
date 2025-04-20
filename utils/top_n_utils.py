@@ -108,9 +108,6 @@ def render_scientific_explorer(st, filtered):
         else:
             st.info("📌 Select two or more tornadoes to view them on the comparison map.")
 
-    elif question == "EF Rating vs CAPE":
-        render_ef_vs_cape()
-
     elif question == "Wind Gust vs Fatalities":
         render_wind_vs_fatalities(filtered, PREFETCH_457_DF)
 
