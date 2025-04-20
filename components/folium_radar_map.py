@@ -1,4 +1,5 @@
 import folium
+import pandas as pd
 import streamlit as st
 
 from components.map_utils import create_ef_layers
@@ -7,6 +8,29 @@ from utils.coordinates import validate_coordinates, get_intermediate_points
 from utils.geojson import add_state_borders, add_ef_legend
 from utils.weather import load_cached_weather, fetch_weather, prepare_weather_data
 from folium.plugins import MarkerCluster
+
+def geo_radar_initial_text(st):
+    with st.expander("🌍 Why Use a Geographic Radar Map? What Insights Does It Reveal?", expanded=False):
+        st.markdown("""
+        The **Geographic Radar Map** visually compares the paths and intensities of selected tornadoes side-by-side on a U.S. map. It overlays **start/end markers**, **path lines**, and **weather information** along the route for deeper spatial understanding.
+
+        #### ✅ Why We Included This Map:
+        - To explore how **tornado geography** influences severity and destruction.
+        - To visualize **path orientation, distance, and location density**.
+        - To correlate storm tracks with **terrain or atmospheric conditions** (like temperature and wind speed).
+
+        #### 🌪 What This Visualization Reveals:
+        - Tornadoes with **similar EF ratings** may occur in very different regions or follow unique directions.
+        - **Longer tracks** can intersect populated areas, increasing risk — even with moderate EF levels.
+        - Observing **start and end markers** with weather data reveals localized atmospheric shifts.
+
+        #### 🧪 How This Leads to Scientific Questions:
+        - Do tornadoes in certain **geographic regions** tend to be longer or deadlier?
+        - Can we identify **atmospheric precursors** along the tornado path?
+        - How does **location or directionality** affect EF severity?
+
+        This map enables spatial analysis of tornado patterns, setting the stage for region-specific and meteorological investigations.
+        """)
 
 def render_geographic_radar_map(selected_df):
     if selected_df.empty or len(selected_df) < 2:
@@ -34,13 +58,20 @@ def render_geographic_radar_map(selected_df):
 
         # Fetch weather data
         points, weather_data = prepare_weather_data(row, cache, include_path=True)
+        start_weather = weather_data[0] if weather_data and isinstance(weather_data[0], dict) else {}
+        end_weather = weather_data[-1] if weather_data and isinstance(weather_data[-1], dict) else {}
 
         # Start marker
         folium.Marker(
             location=start,
             icon=folium.CustomIcon(TORNADO_START_ICON, icon_size=(40, 40)),
             popup=folium.Popup(
-                f"<b>Start:</b> {row['date']}<br>Temp: {weather_data[0][0]}°C<br>Wind: {weather_data[0][1]} m/s",
+                f"""<b>Tornado Start</b><br><b>Date:</b> {row['date']}<br>
+                    <b>Temp:</b> {start_weather.get('temperature', 'N/A')}°C<br>
+                    <b>Wind:</b> {start_weather.get('wind_speed', 'N/A')} m/s<br>
+                    <b>Humidity:</b> {start_weather.get('humidity', 'N/A')}%<br>
+                    <b>Pressure:</b> {start_weather.get('pressure', 'N/A')} hPa<br>
+                    <b>CAPE:</b> {start_weather.get('cape', 'N/A')}""",
                 max_width=300)
         ).add_to(marker_cluster)
 
@@ -49,12 +80,18 @@ def render_geographic_radar_map(selected_df):
             location=end,
             icon=folium.CustomIcon(TORNADO_END_ICON, icon_size=(40, 40)),
             popup=folium.Popup(
-                f"<b>End:</b> {row['date']}<br>Length: {row['len']} mi<br>Temp: {weather_data[-1][0]}°C<br>Wind: {weather_data[-1][1]} m/s",
+                f"""<b>Tornado End</b><br><b>Date:</b> {row['date']}<br><b>Length:</b> {row['len']} miles<br>
+                    <b>Temp:</b> {end_weather.get('temperature', 'N/A')}°C<br>
+                    <b>Wind:</b> {end_weather.get('wind_speed', 'N/A')} m/s<br>
+                    <b>Humidity:</b> {end_weather.get('humidity', 'N/A')}%<br>
+                    <b>Pressure:</b> {end_weather.get('pressure', 'N/A')} hPa<br>
+                    <b>CAPE:</b> {end_weather.get('cape', 'N/A')}""",
                 max_width=300)
         ).add_to(marker_cluster)
 
         # Intermediate weather
         for idx, (lat, lon) in enumerate(points[1:-1]):
+            weather = weather_data[idx + 1] if weather_data and len(weather_data) > idx + 1 else {}
             folium.CircleMarker(
                 location=(lat, lon),
                 radius=5,
@@ -62,8 +99,10 @@ def render_geographic_radar_map(selected_df):
                 fill=True,
                 fill_color=color,
                 popup=folium.Popup(
-                    f"<b>Path Weather</b><br>Temp: {weather_data[idx + 1][0]}°C<br>Wind: {weather_data[idx + 1][1]} m/s",
-                    max_width=300)
+                    f"""<b>Path Weather</b><br>
+                                    <b>Temp:</b> {weather.get("temperature", 'N/A')}°C<br>
+                                    <b>Wind:</b> {weather.get("wind_speed", 'N/A')} m/s""",
+                                    max_width=300)
             ).add_to(ef_layer)
 
         # Tornado path line
@@ -71,7 +110,10 @@ def render_geographic_radar_map(selected_df):
             locations=[start, end],
             color=color,
             weight=2 + row["mag"] * 2,
-            tooltip=f"EF{int(row['mag'])}, Length: {row['len']} mi"
+            tooltip=folium.Tooltip(
+                    f"<b>Date:</b> {row['date']}<br><b>Length:</b> {row['len']} miles<br>"
+                    f"<b>EF Rating:</b> EF{int(row['mag'])}<br><b>Fatalities:</b> {row['fat']}<br><b>Injuries:</b> {row['inj']}",
+                    sticky=True)
         ).add_to(ef_layer)
 
     marker_cluster.add_to(radar_map)
