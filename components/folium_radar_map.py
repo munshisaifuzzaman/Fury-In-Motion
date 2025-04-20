@@ -1,13 +1,13 @@
 import folium
-import pandas as pd
 import streamlit as st
+from folium.plugins import MarkerCluster
 
 from components.map_utils import create_ef_layers
 from utils.constants import MAP_STYLES, EF_COLORS, TORNADO_START_ICON, TORNADO_END_ICON
-from utils.coordinates import validate_coordinates, get_intermediate_points
+from utils.coordinates import validate_coordinates
 from utils.geojson import add_state_borders, add_ef_legend
-from utils.weather import load_cached_weather, fetch_weather, prepare_weather_data
-from folium.plugins import MarkerCluster
+from utils.weather import load_cached_weather, prepare_weather_data
+
 
 def geo_radar_initial_text(st):
     with st.expander("🌍 Why Use a Geographic Radar Map? What Insights Does It Reveal?", expanded=False):
