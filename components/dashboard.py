@@ -1,27 +1,21 @@
 import streamlit as st
+
 from components.controls import render_sidebar_controls
 from components.folium_map_render import folium_render_map
-from components.folium_radar_map import render_geographic_radar_map
 from utils.constants import COLUMN_MAPPING
 from utils.data_loader import load_tornado_data, load_station_data
-from components.radar_comparison import render_radar_chart
-import pandas as pd
+from utils.folium_utils import get_state_from_latlon
+from utils.top_n_utils import render_scientific_explorer, why_top_n_visualtion, initial_text
 
-df = load_tornado_data()
-wsd = load_station_data()
-
-# Handle query param (replaces experimental_get_query_params)
-params = st.query_params
-if "_view" in params:
-    st.session_state["view"] = params["_view"]
-    st.rerun()
+# Load data globally
+TDS = load_tornado_data()
+STATIONS = load_station_data()
 
 def render_task_grid():
-    # Dashboard Title + Description
     st.title("🌪️ Tornado Visualizer")
 
     st.markdown("""
-    <div style='font-size:21px; line-height:1.5;'>
+    <div style='font-size:21px; line-height:1.5; padding-bottom:10px;'>
         <b>Fury In Motion</b> is an interactive visualization platform for tornado patterns across the US. 
         Select filters to explore tornado intensity, path, weather data, and more.
     </div>
@@ -31,12 +25,11 @@ def render_task_grid():
         st.markdown("""
         - Source: [NOAA SPC Tornado Database](https://www.spc.noaa.gov/wcm/#data)
         - Range: 1950 - 2023  
-        - Fields: Location, Date, EF Rating, Path Length, Width, Fatalities, Injuries, Weather Conditions, etc.
+        - Fields: Location, Date, EF Rating, Path Length, Width, Fatalities, Injuries, etc.
         """)
 
     st.markdown("### 🔍 Select a View to Explore")
 
-    # Inject CSS
     st.markdown("""
     <style>
     .card {
@@ -68,20 +61,11 @@ def render_task_grid():
     """, unsafe_allow_html=True)
 
     tasks = [
-        {
-            "title": "Visualize Top N Tornadoes in terms of different metrics",
-            "image": "./assets/tornado_end.png",
-            "key": "map"
-        },
-        {
-            "title": "Visualize Top N Tornadoes in terms of different metrics",
-            "image": "./assets/tornado_end.png",
-            "key": "ef"
-        },
+        {"title": "Visualize Top N Tornadoes", "image": "./assets/tornado_end.png", "key": "map"},
+        {"title": "Explore Scientific Questions", "image": "./assets/science_icon.png", "key": "science"},
     ]
 
     cols = st.columns(3)
-
     for idx, task in enumerate(tasks):
         with cols[idx % 3]:
             st.markdown(f"""
@@ -93,7 +77,6 @@ def render_task_grid():
             </a>
             """, unsafe_allow_html=True)
 
-
 def render_top_N_page():
     cols = st.columns([0.05, 0.95])
     with cols[0]:
@@ -103,48 +86,25 @@ def render_top_N_page():
             st.query_params.clear()
             st.rerun()
 
+    initial_text(st)
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # Sidebar UI for filtering
-    metric, top_n, map_style, value_range = render_sidebar_controls(df)
+    metric, top_n, map_style, value_range = render_sidebar_controls(TDS)
 
     if metric != "Select" and top_n != "Select":
+        folium_render_map(TDS, metric, int(top_n), value_range, map_style)
+        why_top_n_visualtion(st)
 
-        folium_render_map(df, metric, int(top_n), value_range, map_style)
-
-        # ✅ Filtered data for current selection
         col_key, _ = COLUMN_MAPPING[metric]
         min_val, max_val = value_range
-        filtered = df[(df[col_key] >= min_val) & (df[col_key] <= max_val)]
+        filtered = TDS[(TDS[col_key] >= min_val) & (TDS[col_key] <= max_val)]
         filtered = filtered.sort_values(col_key, ascending=False).head(int(top_n))
 
-        # ✅ Add state column before dropdown
-        from utils.folium_utils import get_state_from_latlon
         filtered = filtered.copy()
         filtered["state"] = filtered.apply(lambda row: get_state_from_latlon(row["slat"], row["slon"]), axis=1)
 
-        # 🔁 Run radar comparison UI + chart logic here
-        render_radar_chart(filtered)
-
-        # 🗺️ Geographic Radar Comparison Section
-        st.markdown("### 🗺️ Geographic Tornado Radar Map")
-        st.markdown("---")
-
-        st.markdown("#### 🌐 Select tornadoes for geographic comparison:")
-
-        selected_geo = st.multiselect(
-            "Choose tornadoes to show on the map",
-            options=list(filtered.index),
-            format_func=lambda
-                i: f"{filtered.loc[i]['state']} | {filtered.loc[i]['date']} | EF{int(filtered.loc[i]['mag'])}"
-        )
-
-        selected_geo_df = filtered.loc[selected_geo] if selected_geo else pd.DataFrame()
-
-        if len(selected_geo_df) >= 2:
-            render_geographic_radar_map(selected_geo_df)
-        else:
-            st.info("📌 Select two or more tornadoes to view them on the comparison map.")
+        render_scientific_explorer(st, filtered)
 
     else:
         st.info("Select both metric and top N to begin.")
+
