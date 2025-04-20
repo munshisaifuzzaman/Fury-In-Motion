@@ -25,7 +25,7 @@ def render_sidebar_controls(df):
     #     )
 
     metric = st.sidebar.selectbox("Select Metric", ["Select"] + list(COLUMN_MAPPING.keys()))
-    top_n = st.sidebar.selectbox("Top N Tornadoes", ["Select", 10, 20, 30, 40, 50])
+    top_n = st.sidebar.selectbox("Top N Tornadoes", ["Select", 10, 20, 30, 40, 50, 150])
     map_style = st.sidebar.selectbox("Map Style", list(MAP_STYLES.keys()))
 
     value_range = (0.0, 100.0)
