@@ -25,3 +25,19 @@ def load_station_data():
         stations.append(pd.read_csv(WEATHER_STATION_DATA_URL + filename))
 
     return stations
+
+
+
+
+def load_prefetch_457_df():
+    df = pd.read_csv(TORNADO_CSV_URL)
+    df["date"] = pd.to_datetime(df["date"], errors="coerce")
+    df = df[(df["slat"] != 0.0) & (df["slon"] != 0.0)]
+
+    top_len = df.sort_values("len", ascending=False).head(150)
+    top_wid = df.sort_values("wid", ascending=False).head(150)
+    top_fat = df.sort_values("fat", ascending=False).head(150)
+    top_inj = df.sort_values("inj", ascending=False).head(150)
+
+    combined = pd.concat([top_len, top_wid, top_fat, top_inj]).drop_duplicates()
+    return combined.reset_index(drop=True)

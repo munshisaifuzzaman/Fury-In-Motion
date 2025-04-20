@@ -7,6 +7,9 @@ from components.science_questions.ef_vs_cape import render_ef_vs_cape
 from components.science_questions.precipitation_vs_width import render_precipitation_vs_width
 from components.science_questions.temp_vs_length import render_temp_vs_length
 from components.science_questions.wind_vs_fatalities import render_wind_vs_fatalities
+from utils.data_loader import load_prefetch_457_df
+
+PREFETCH_457_DF = load_prefetch_457_df()
 
 
 def initial_text(st):
@@ -109,13 +112,14 @@ def render_scientific_explorer(st, filtered):
         render_ef_vs_cape()
 
     elif question == "Wind Gust vs Fatalities":
-        render_wind_vs_fatalities(filtered)
+        render_wind_vs_fatalities(filtered, PREFETCH_457_DF)
 
     elif question == "Temperature vs Tornado Length":
         render_temp_vs_length(filtered)
 
     elif question == "Precipitation vs Tornado Width":
-        render_precipitation_vs_width(filtered)
+
+        render_precipitation_vs_width(filtered, PREFETCH_457_DF)
 
     elif question == "Correlation Matrix":
         render_correlation_matrix(filtered)
