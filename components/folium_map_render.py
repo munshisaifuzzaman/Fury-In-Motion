@@ -9,7 +9,6 @@ from utils.folium_utils import get_state_from_latlon, build_tornado_dropdown
 from utils.weather import load_cached_weather, fetch_weather, prepare_weather_data
 from folium.plugins import MarkerCluster
 
-
 def folium_render_map(data, column, top_n, value_range, map_style):
     st.markdown(f"### 🌪️ Top {top_n} Tornado Visualization based on {column}")
     st.markdown("---")  # Horizontal line separator
@@ -43,7 +42,6 @@ def folium_render_map(data, column, top_n, value_range, map_style):
     cache = load_cached_weather()
     marker_cluster = MarkerCluster(name="Tornado Markers")
 
-
     for row_idx, row in filtered.iterrows():
         start = validate_coordinates(row["slat"], row["slon"])
         end = validate_coordinates(row["elat"], row["elon"])
@@ -54,6 +52,11 @@ def folium_render_map(data, column, top_n, value_range, map_style):
         ef_layer = ef_layers.get(f"EF{int(row['mag'])}", folium.FeatureGroup())
 
         points, weather_data = prepare_weather_data(row, cache, include_path=SHOW_PATHS)
+
+        # Updated to return {} instead of (None,) * 9 when missing
+        start_weather = weather_data[0] if weather_data and isinstance(weather_data[0], dict) else {}
+        end_weather = weather_data[-1] if weather_data and isinstance(weather_data[-1], dict) else {}
+
         is_selected = (selected_tornado_idx is not None and row_idx == selected_tornado_idx)
 
         if is_selected:
@@ -66,29 +69,42 @@ def folium_render_map(data, column, top_n, value_range, map_style):
                 opacity=0.8
             ).add_to(ef_layer)
 
-        # Start Marker (with full weather popup)
+        # ✅ Start Marker using dict keys
         folium.Marker(
             location=start,
             icon=folium.CustomIcon(TORNADO_START_ICON, icon_size=(40, 40)),
             popup=folium.Popup(
-                f"<b>Tornado Start</b><br><b>Date:</b> {row['date']}<br>"
-                f"<b>Temp:</b> {weather_data[0][0]}°C<br><b>Wind:</b> {weather_data[0][1]} m/s",
+                f"""<b>Tornado Start</b><br><b>Date:</b> {row['date']}<br>
+                    <b>Temp:</b> {start_weather.get('temperature', 'N/A')}°C<br>
+                    <b>Wind:</b> {start_weather.get('wind_speed', 'N/A')} m/s<br>
+                    <b>Humidity:</b> {start_weather.get('humidity', 'N/A')}%<br>
+                    <b>Pressure:</b> {start_weather.get('pressure', 'N/A')} hPa<br>
+                    <b>CAPE:</b> {start_weather.get('cape', 'N/A')}""",
                 max_width=300)
         ).add_to(marker_cluster)
 
-        # End Marker (with full weather + length popup)
+        # ✅ End Marker using dict keys
         folium.Marker(
             location=end,
             icon=folium.CustomIcon(TORNADO_END_ICON, icon_size=(40, 40)),
             popup=folium.Popup(
-                f"<b>Tornado End</b><br><b>Date:</b> {row['date']}<br><b>Length:</b> {row['len']} miles<br>"
-                f"<b>Temp:</b> {weather_data[-1][0]}°C<br><b>Wind:</b> {weather_data[-1][1]} m/s",
+                f"""<b>Tornado End</b><br><b>Date:</b> {row['date']}<br><b>Length:</b> {row['len']} miles<br>
+                    <b>Temp:</b> {end_weather.get('temperature', 'N/A')}°C<br>
+                    <b>Wind:</b> {end_weather.get('wind_speed', 'N/A')} m/s<br>
+                    <b>Humidity:</b> {end_weather.get('humidity', 'N/A')}%<br>
+                    <b>Pressure:</b> {end_weather.get('pressure', 'N/A')} hPa<br>
+                    <b>CAPE:</b> {end_weather.get('cape', 'N/A')}""",
                 max_width=300)
         ).add_to(marker_cluster)
+
+        # Add tornado cluster to map (NOT to the global one)
+        marker_cluster.add_to(folium_map)
 
         # Add path and weather markers if enabled
         if SHOW_PATHS:
             for idx, (lat, lon) in enumerate(points[1:-1]):
+                weather = weather_data[idx + 1] if weather_data and len(weather_data) > idx + 1 else {}
+
                 folium.CircleMarker(
                     location=(lat, lon),
                     radius=5,
@@ -96,8 +112,11 @@ def folium_render_map(data, column, top_n, value_range, map_style):
                     fill=True,
                     fill_color=color,
                     popup=folium.Popup(
-                        f"<b>Path Weather</b><br><b>Temp:</b> {weather_data[idx + 1][0]}°C<br><b>Wind:</b> {weather_data[idx + 1][1]} m/s",
-                        max_width=300)
+                        f"""<b>Path Weather</b><br>
+                                    <b>Temp:</b> {weather.get("temperature", 'N/A')}°C<br>
+                                    <b>Wind:</b> {weather.get("wind_speed", 'N/A')} m/s""",
+                                    max_width=300
+                    )
                 ).add_to(ef_layer)
 
             folium.PolyLine(
@@ -111,7 +130,6 @@ def folium_render_map(data, column, top_n, value_range, map_style):
             ).add_to(ef_layer)
 
     # Add markers and layers to map
-    marker_cluster.add_to(folium_map)
     for layer in ef_layers.values():
         layer.add_to(folium_map)
 

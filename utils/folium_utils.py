@@ -13,7 +13,6 @@ def get_state_from_latlon(lat, lon):
             return row["name"]
     return "NA"
 
-
 def build_tornado_dropdown(filtered_df):
     df = filtered_df.copy()
     df["state"] = df.apply(lambda row: get_state_from_latlon(row["slat"], row["slon"]), axis=1)
