@@ -9,7 +9,7 @@ st.set_page_config(
 )
 
 # Load views
-from components.dashboard import render_task_grid, render_top_N_page, render_weather_stations_exploration_page
+from components.dashboard import render_task_grid, render_top_N_page, render_weather_stations_exploration_page, render_3d_injuries_fatalities_page
 
 # Handle routing
 params = st.query_params
@@ -25,3 +25,5 @@ else:
         render_top_N_page()
     elif st.session_state["view"] == "explore":  # ⬅️ Add this
         render_weather_stations_exploration_page()
+    elif st.session_state["view"] == "population":
+        render_3d_injuries_fatalities_page()

@@ -92,6 +92,7 @@ def render_task_grid():
     tasks = [
         {"title": "Meteorological Analysis of Top Tornadoes", "bg": "assets/bg_munshi_task.png", "key": "map"},
         {"title": "Tornado & Weather Station Map", "bg": "assets/bg_sam_task.png", "key": "explore"},
+        {"title": "3D Tornado vs. Population Map", "bg": "assets/bg_matthew_task.png", "key": "population"},
     ]
 
     cols = st.columns(3)
@@ -193,3 +194,9 @@ def render_weather_stations_exploration_page():
 
     year, month, magnitude = render_sidebar_controls_for_weather_station_task()
     return render_explore_page(year, month, magnitude)
+
+def render_3d_injuries_fatalities_page():
+    with open("notebooks/output/3d_injuries_fatalities_bar_graph.html", "r") as f:
+        html_content = f.read()
+
+    st.components.v1.html(html_content, height=800, scrolling=True)
