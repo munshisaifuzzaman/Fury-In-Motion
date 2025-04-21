@@ -1,15 +1,22 @@
 import folium
 import streamlit as st
-
-from components.map_utils import create_ef_layers
-from utils.constants import MAP_STYLES, COLUMN_MAPPING, EF_COLORS, TORNADO_START_ICON, TORNADO_END_ICON
-from utils.coordinates import validate_coordinates, get_intermediate_points
-from utils.geojson import add_state_borders, add_ef_legend
-from utils.folium_utils import get_state_from_latlon, build_tornado_dropdown
-from utils.weather import load_cached_weather, fetch_weather, prepare_weather_data
 from folium.plugins import MarkerCluster
 
+from components.map_utils import create_ef_layers
+from utils.constants import MAP_STYLES, COLUMN_MAPPING, EF_COLORS, \
+    TORNADO_START_PNG_ICON, TORNADO_START_GIF_ICON, TORNADO_END_PNG_ICON, TORNADO_END_GIF_ICON
+from utils.coordinates import validate_coordinates
+from utils.folium_utils import build_tornado_dropdown
+from utils.geojson import add_state_borders, add_ef_legend
+from utils.weather import load_cached_weather, prepare_weather_data
+
+
 def folium_render_map(data, column, top_n, value_range, map_style):
+    TORNADO_START_ICON = TORNADO_START_PNG_ICON if top_n >= 50 else TORNADO_START_GIF_ICON
+    TORNADO_END_ICON = TORNADO_END_PNG_ICON if top_n >= 50 else TORNADO_END_GIF_ICON
+    icon_size = (40, 40) if top_n >= 50 else (55, 55)
+
+
     st.markdown(f"### 🌪️ Top {top_n} Tornado Visualization based on {column}")
     st.markdown("---")  # Horizontal line separator
 
@@ -72,7 +79,7 @@ def folium_render_map(data, column, top_n, value_range, map_style):
         # ✅ Start Marker using dict keys
         folium.Marker(
             location=start,
-            icon=folium.CustomIcon(TORNADO_START_ICON, icon_size=(40, 40)),
+            icon=folium.CustomIcon(TORNADO_START_ICON, icon_size=icon_size),
             popup=folium.Popup(
                 f"""<b>Tornado Start</b><br><b>Date:</b> {row['date']}<br>
                     <b>Temp:</b> {start_weather.get('temperature', 'N/A')}°C<br>
@@ -86,7 +93,7 @@ def folium_render_map(data, column, top_n, value_range, map_style):
         # ✅ End Marker using dict keys
         folium.Marker(
             location=end,
-            icon=folium.CustomIcon(TORNADO_END_ICON, icon_size=(40, 40)),
+            icon=folium.CustomIcon(TORNADO_END_ICON, icon_size=icon_size),
             popup=folium.Popup(
                 f"""<b>Tornado End</b><br><b>Date:</b> {row['date']}<br><b>Length:</b> {row['len']} miles<br>
                     <b>Temp:</b> {end_weather.get('temperature', 'N/A')}°C<br>

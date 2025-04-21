@@ -3,7 +3,8 @@ import streamlit as st
 from folium.plugins import MarkerCluster
 
 from components.map_utils import create_ef_layers
-from utils.constants import MAP_STYLES, EF_COLORS, TORNADO_START_ICON, TORNADO_END_ICON
+from utils.constants import MAP_STYLES, EF_COLORS, TORNADO_START_GIF_ICON, \
+    TORNADO_END_GIF_ICON
 from utils.coordinates import validate_coordinates
 from utils.geojson import add_state_borders, add_ef_legend
 from utils.weather import load_cached_weather, prepare_weather_data
@@ -64,7 +65,7 @@ def render_geographic_radar_map(selected_df):
         # Start marker
         folium.Marker(
             location=start,
-            icon=folium.CustomIcon(TORNADO_START_ICON, icon_size=(40, 40)),
+            icon=folium.CustomIcon(TORNADO_START_GIF_ICON, icon_size=(55, 55)),
             popup=folium.Popup(
                 f"""<b>Tornado Start</b><br><b>Date:</b> {row['date']}<br>
                     <b>Temp:</b> {start_weather.get('temperature', 'N/A')}°C<br>
@@ -78,7 +79,7 @@ def render_geographic_radar_map(selected_df):
         # End marker
         folium.Marker(
             location=end,
-            icon=folium.CustomIcon(TORNADO_END_ICON, icon_size=(40, 40)),
+            icon=folium.CustomIcon(TORNADO_END_GIF_ICON, icon_size=(55, 55)),
             popup=folium.Popup(
                 f"""<b>Tornado End</b><br><b>Date:</b> {row['date']}<br><b>Length:</b> {row['len']} miles<br>
                     <b>Temp:</b> {end_weather.get('temperature', 'N/A')}°C<br>

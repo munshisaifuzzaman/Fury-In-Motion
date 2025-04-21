@@ -24,8 +24,10 @@ EF_COLORS = {
     3: "#d62728", 4: "#8c0000", 5: "#000000"
 }
 
-TORNADO_START_ICON = "./assets/tornado_start.png"
-TORNADO_END_ICON = "./assets/tornado_end.png"
+TORNADO_START_GIF_ICON = "./assets/gif_icon_4.gif"
+TORNADO_END_GIF_ICON = "./assets/gif_icon_5.gif"
+TORNADO_START_PNG_ICON = "./assets/tornado_start.png"
+TORNADO_END_PNG_ICON = "./assets/tornado_end.png"
 
 THERMOMETER_ICON = "./assets/thermometer.png"
 

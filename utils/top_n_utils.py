@@ -3,7 +3,6 @@ import pandas as pd
 from components.folium_radar_map import render_geographic_radar_map, geo_radar_initial_text
 from components.radar_comparison import render_radar_chart
 from components.science_questions.correlation_matrix import render_correlation_matrix
-from components.science_questions.ef_vs_cape import render_ef_vs_cape
 from components.science_questions.precipitation_vs_width import render_precipitation_vs_width
 from components.science_questions.temp_vs_length import render_temp_vs_length
 from components.science_questions.wind_vs_fatalities import render_wind_vs_fatalities
@@ -80,7 +79,6 @@ def render_scientific_explorer(st, filtered):
         "— Select a question —",
         "Spider Radar Chart (EF, Injuries, Width, etc.)",
         "Geographic Radar View (Compare Tornado Paths)",
-        "EF Rating vs CAPE",
         "Wind Gust vs Fatalities",
         "Temperature vs Tornado Length",
         "Precipitation vs Tornado Width",
