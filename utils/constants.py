@@ -5,6 +5,8 @@ API_KEY = "90927d45c68b47cc8592033a1c84ec33"
 
 US_STATES_GEOJSON_FILE_PATH = "./data/us-states.json"
 WEATHER_CACHE_FILE = "./cache/weather_cache.json"
+TORNADO_CSV_URL = "./data/1950-2023_actual_tornadoes.csv"
+WEATHER_STATION_DATA_URL = "./data/weather_stations/"
 
 MAP_STYLES = {
     "OpenStreetMap": {"tiles": "OpenStreetMap", "attr": ""},

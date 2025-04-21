@@ -1,7 +1,7 @@
 import streamlit as st
 from utils.constants import MAP_STYLES, COLUMN_MAPPING
 
-def render_sidebar_controls(df):
+def render_sidebar_controls_for_top_N_task(df):
     # Header row with logo and project title
     with st.sidebar:
         st.markdown(
@@ -49,3 +49,25 @@ def render_sidebar_controls(df):
             )
 
     return metric, top_n, map_style, value_range
+
+def render_sidebar_controls_for_weather_station_task():
+    # Header row with logo and project title
+    with st.sidebar:
+        st.markdown(
+            """
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 30px;">🌪️</span>
+                <span style="font-weight: bold; font-size: 26px;">Fury In Motion</span>
+            </div>
+            <hr style="margin-top: 10px;">
+            """,
+            unsafe_allow_html=True
+        )
+        # st.markdown("---")  # Optional: horizontal separator
+        st.sidebar.title("🛠️ Filters")
+
+        year = st.slider("Select Year", 1950, 2023, 1990)
+        month = st.slider("Select Month", 1, 12, 5)
+        magnitude = st.slider("Select Magnitude Range", 1, 5, (1, 5))
+
+    return year, month, magnitude

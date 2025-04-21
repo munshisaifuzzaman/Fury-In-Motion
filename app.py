@@ -9,7 +9,7 @@ st.set_page_config(
 )
 
 # Load views
-from components.dashboard import render_task_grid, render_top_N_page
+from components.dashboard import render_task_grid, render_top_N_page, render_weather_stations_exploration_page
 
 # Handle routing
 params = st.query_params
@@ -23,13 +23,5 @@ if "view" not in st.session_state:
 else:
     if st.session_state["view"] == "map":
         render_top_N_page()
-    elif st.session_state["view"] == "ef":
-        render_top_N_page()
-
-# === Footer ===
-st.markdown("---")
-st.markdown("""
-<div style='font-size:14px; color:gray; text-align:center;'>
-    🔗 Data powered by <a href='https://www.spc.noaa.gov' target='_blank'>NOAA SPC</a>. Weather data from <a href='https://open-meteo.com/' target='_blank'>Open-Meteo</a>.
-</div>
-""", unsafe_allow_html=True)
+    elif st.session_state["view"] == "explore":  # ⬅️ Add this
+        render_weather_stations_exploration_page()
