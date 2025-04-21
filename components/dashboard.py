@@ -90,7 +90,7 @@ def render_task_grid():
     """, unsafe_allow_html=True)
 
     tasks = [
-        {"title": "Visualize Top N Tornadoes", "bg": "assets/bg_munshi_task.png", "key": "map"},
+        {"title": "Meteorological Analysis of Top Tornadoes", "bg": "assets/bg_munshi_task.png", "key": "map"},
         {"title": "Tornado & Weather Station Map", "bg": "assets/bg_sam_task.png", "key": "explore"},
     ]
 
