@@ -1,7 +1,8 @@
-import streamlit as st
 import pandas as pd
 import plotly.express as px
-from utils.data_loader import load_tornado_data
+import streamlit as st
+
+from utils.graphical_plot import graphical_plot
 from utils.weather import fetch_weather, load_cached_weather
 
 WIDTH_BINS = [0, 100, 300, 800, float("inf")]
@@ -39,7 +40,7 @@ def render_precipitation_vs_width(filtered_df, prefetch_457_df):
     precipitation_vs_width_description()
     cache = load_cached_weather()
 
-    # ✅ Dataset toggle
+    # Dataset toggle
     scope = st.radio(
         "Choose tornado dataset to analyze:",
         ["Top N Tornadoes (Filtered)", "Top 457 Prefetched Tornadoes"],
@@ -72,9 +73,11 @@ def render_precipitation_vs_width(filtered_df, prefetch_457_df):
         trendline="ols",
         title="Tornado Width by Daily Precipitation"
     )
-    fig.update_traces(marker=dict(size=7, opacity=0.6))
+    fig.update_traces(
+        marker=dict(size=8, opacity=0.7, color="rgba(0,100,200,0.7)", line=dict(width=1, color="DarkSlateGrey"))
+    )
     fig.update_layout(height=500)
-    st.plotly_chart(fig, use_container_width=True)
+    graphical_plot(fig)
 
     # 📊 Box Plot (grouped)
     st.subheader("📊 Box Plot: Precipitation by Width Category")
@@ -84,10 +87,11 @@ def render_precipitation_vs_width(filtered_df, prefetch_457_df):
         x="Width Bin",
         y="Precipitation (mm)",
         color="Width Bin",
-        title="Precipitation Distribution by Tornado Width Group"
+        title="Precipitation Distribution by Tornado Width Group",
+        color_discrete_sequence = px.colors.qualitative.Set2
     )
     fig_box.update_layout(height=500, showlegend=False)
-    st.plotly_chart(fig_box, use_container_width=True)
+    graphical_plot(fig_box)
 
     with st.expander("📌 Scientific Question: Precipitation vs Tornado Width", expanded=True):
         st.markdown("""

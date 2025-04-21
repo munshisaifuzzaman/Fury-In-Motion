@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from utils.data_loader import load_tornado_data
+from utils.graphical_plot import graphical_plot
 from utils.weather import fetch_weather, load_cached_weather
 
 FATALITY_BINS = [0, 1, 5, 20, float("inf")]
@@ -83,15 +84,11 @@ def render_wind_vs_fatalities(filtered_df, prefetch_457_df):
         color_discrete_sequence=["#1f77b4"],
         title="💨 Wind Gust vs Fatalities (With Linear Trendline)"
     )
-    fig.update_traces(marker=dict(size=7, opacity=0.7))
-    fig.update_layout(
-        height=500,
-        title_font=dict(size=20),
-        plot_bgcolor="rgba(0,0,0,0)",
-        paper_bgcolor="rgba(0,0,0,0)",
-        margin=dict(l=40, r=40, t=60, b=40)
+    fig.update_traces(
+        marker=dict(size=8, opacity=0.7, color="rgba(0,100,200,0.7)", line=dict(width=1, color="DarkSlateGrey"))
     )
-    st.plotly_chart(fig, use_container_width=True)
+    fig.update_layout(height=500)
+    graphical_plot(fig)
 
     # 📊 Enhanced Box Plot
     st.subheader("📊 Box Plot: Wind Gust by Fatality Range")
@@ -103,18 +100,12 @@ def render_wind_vs_fatalities(filtered_df, prefetch_457_df):
         y="Wind Gust (km/h)",
         color="Fatality Bin",
         color_discrete_sequence=["#A0C4FF", "#FFADAD", "#BDB2FF", "#CAFFBF"],
-        title="📊 Wind Gust Distribution Across Fatality Ranges"
+        title="📊 Wind Gust Distribution Across Fatality Ranges",
+        # color_discrete_sequence = px.colors.qualitative.Set2
     )
     fig_box.update_traces(marker=dict(opacity=0.5), line=dict(width=1.5))
-    fig_box.update_layout(
-        height=500,
-        title_font=dict(size=20),
-        plot_bgcolor="rgba(0,0,0,0)",
-        paper_bgcolor="rgba(0,0,0,0)",
-        margin=dict(l=40, r=40, t=60, b=40),
-        showlegend=False
-    )
-    st.plotly_chart(fig_box, use_container_width=True)
+    fig_box.update_layout(height=500, showlegend=False)
+    graphical_plot(fig_box)
 
     # 📌 Interpretation
     st.markdown("""

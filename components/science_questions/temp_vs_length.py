@@ -1,7 +1,10 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+
+from utils.graphical_plot import graphical_plot
 from utils.weather import fetch_weather, load_cached_weather
+
 
 LENGTH_BINS = [0, 10, 30, float("inf")]
 LENGTH_LABELS = ["Short (0–10 mi)", "Medium (10–30 mi)", "Long (30+ mi)"]
@@ -68,29 +71,32 @@ def render_temp_vs_length(filtered_df: pd.DataFrame, prefetch_457_df: pd.DataFra
 
     # 📉 Scatter Plot
     st.subheader("📉 Scatter Plot: Temperature vs Tornado Length")
-    fig1 = px.scatter(
+    fig_scatter = px.scatter(
         df_temp,
         x="Max Temp (°C)",
         y="Tornado Length (mi)",
         trendline="ols",
         title="Tornado Length by Max Surface Temperature"
     )
-    fig1.update_traces(marker=dict(size=7, opacity=0.6))
-    fig1.update_layout(height=500)
-    st.plotly_chart(fig1, use_container_width=True)
+    fig_scatter.update_traces(
+        marker=dict(size=8, opacity=0.7, color="rgba(0,100,200,0.7)", line=dict(width=1, color="DarkSlateGrey"))
+    )
+    fig_scatter.update_layout(height=500)
+    graphical_plot(fig_scatter)
 
     # 📊 Box Plot
     st.subheader("📊 Box Plot: Temperature Distribution by Tornado Length Category")
     df_temp["Length Category"] = pd.cut(df_temp["Tornado Length (mi)"], bins=LENGTH_BINS, labels=LENGTH_LABELS)
-    fig2 = px.box(
+    fig_box = px.box(
         df_temp,
         x="Length Category",
         y="Max Temp (°C)",
         color="Length Category",
-        title="Surface Temperature Distribution by Tornado Length"
+        title="Surface Temperature Distribution by Tornado Length",
+        color_discrete_sequence = px.colors.qualitative.Set2
     )
-    fig2.update_layout(height=500, showlegend=False)
-    st.plotly_chart(fig2, use_container_width=True)
+    fig_box.update_layout(height=500, showlegend=False)
+    graphical_plot(fig_box)
 
     st.markdown("""
     ### 🧠 Scientific Interpretation: Temperature vs Tornado Length
@@ -123,3 +129,5 @@ def render_temp_vs_length(filtered_df: pd.DataFrame, prefetch_457_df: pd.DataFra
     ### ✅ Final Conclusion
     While **longer tornadoes** appear more likely to form on **warmer days**, this relationship weakens when filtered by **width or fatalities**. This suggests that **temperature alone is insufficient** as a predictor of tornado severity. Future analysis should consider combining temperature with other atmospheric indicators (e.g., CAPE, wind shear) for deeper insights.
     """)
+
+
