@@ -16,3 +16,5 @@ haversine
 openmeteo_requests
 openmeteo_sdk
 geopandas
+statsmodels
+plotly
