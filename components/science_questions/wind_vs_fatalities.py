@@ -114,9 +114,4 @@ def render_wind_vs_fatalities(filtered_df, prefetch_457_df):
     - The scatter plot reveals whether a positive correlation exists between surface wind and fatalities.
     - The box plot helps determine if tornadoes with higher fatalities tend to occur on higher-wind days.
     - If **higher fatality bins consistently show higher wind speeds**, it may suggest environmental wind shear or gust potential plays a role in impact severity.
-
-    ### ✅ Result
-
-    _[⬜ To be filled based on output — e.g., “Moderate wind values (30–40 km/h) were common across all fatality groups, with no strong upward trend observed.”]_  
-    _[⬜ Or “The 21+ fatality bin had a significantly higher wind gust distribution compared to 0-death tornadoes.”]_
     """)

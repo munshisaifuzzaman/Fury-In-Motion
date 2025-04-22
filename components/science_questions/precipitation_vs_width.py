@@ -9,7 +9,7 @@ WIDTH_BINS = [0, 100, 300, 800, float("inf")]
 WIDTH_LABELS = ["0–100 yd", "101–300 yd", "301–800 yd", "800+ yd"]
 
 def precipitation_vs_width_description():
-    with st.expander("📌 Scientific Question: Precipitation vs Tornado Width", expanded=True):
+    with st.expander("📌 Scientific Question: Precipitation vs Tornado Width", expanded=False):
         st.markdown("""
         #### 🔬 Scientific Question: Does Precipitation Correlate with Tornado Width?
 
@@ -93,7 +93,7 @@ def render_precipitation_vs_width(filtered_df, prefetch_457_df):
     fig_box.update_layout(height=500, showlegend=False)
     graphical_plot(fig_box)
 
-    with st.expander("📌 Scientific Question: Precipitation vs Tornado Width", expanded=True):
+    with st.expander("📌 Scientific Question: Precipitation vs Tornado Width", expanded=False):
         st.markdown("""
         #### 🔬 Scientific Question: Do Heavier Rainfall Events Lead to Wider Tornadoes?
 

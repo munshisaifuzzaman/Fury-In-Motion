@@ -12,7 +12,7 @@ PREFETCH_457_DF = load_prefetch_457_df()
 
 
 def initial_text(st):
-    with st.expander("🧽 Overview: Top N Tornadoes Explorer", expanded=True):
+    with st.expander("🧽 Overview: Top N Tornadoes Explorer", expanded=False):
         st.markdown("""
         **Purpose:**  
         This module enables users to explore the most significant tornadoes in the U.S. based on various metrics like path length, width, EF rating, fatalities, and injuries. The visual interface provides dynamic insights into storm characteristics and serves as a launching pad for scientific exploration.
